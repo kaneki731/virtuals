@@ -22,5 +22,6 @@ Automatiza la creación de entornos virtuales, instalación de dependencias, ver
 git clone https://github.com/v1n1v131r4/virtuals.git
 cd virtuals
 chmod +x virtuals.sh
+cp virtuals /usr/local/bin/ "Esto para ejecutar el escrip en cualquier lado del sistema"
 ./virtuals.sh
 
