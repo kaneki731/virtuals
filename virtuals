@@ -1,0 +1,184 @@
+#!/bin/bash
+# ==========================================================
+# ⚡ Script de Automatización PAPI JHON v3.0 Final Pro
+# Desarrollado por: Brayan + ChatGPT CyberSec
+# ==========================================================
+
+# --- MANEJO DE SEÑALES ---
+cleanup() {
+    echo ""
+    echo -e "\e[31m[!] Interrupción detectada.\e[0m"
+    echo -e "\e[32m[+] El entorno virtual se conserva activo.\e[0m"
+    echo -e "\e[36m[*] Puedes activarlo manualmente con:\e[0m"
+    echo -e "\e[33m    source venv/bin/activate\e[0m"
+    echo ""
+    exit 0
+}
+trap cleanup SIGINT SIGTERM
+
+# --- BANNER ---
+mostrar_banner() {
+    clear
+    echo -e "\e[31m
+⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣶⡞⡀⣤⣬⣴⠀⠀⢳⣶⣶⣤⣄⡀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⣠⣾⣿⣿⣿⣿⡇⠀⢸⣿⠿⣿⡇⠀⠀⠸⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀
+⠀⠀⢠⡾⣫⣿⣻⣿⣽⣿⡇⠀⠈⢿⣧⡝⠟⠀⠀⢸⣿⣿⣿⣿⣿⣟⢷⣄⠀⠀
+⠀⢠⣯⡾⢿⣿⣿⡿⣿⣿⣿⣆⣠⣶⣿⣿⣷⣄⣰⣿⣿⣿⣿⣿⣿⣿⢷⣽⣄⠀
+⢠⣿⢋⠴⠋⣽⠋⡸⢱⣯⡿⣿⠏⣡⣿⣽⡏⠹⣿⣿⣿⡎⢣⠙⢿⡙⠳⡙⢿⠄
+⣰⢣⣃⠀⠊⠀⠀⠁⠘⠏⠁⠁⠸⣶⣿⡿⢿⡄⠈⠀⠁⠃⠈⠂⠀⠑⠠⣈⡈⣧
+⡏⡘⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡥⢄⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢳⢸
+⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣄⣸⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢨
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡳⣶⣄⡀⠀
+\e[0m"
+
+    echo -e "\e[34m
+
+    ____   ____ ____  ___ ____    _____ _       _____ ___ _____ ____   ___  
+/ ___| / ___|  _ \|_ _|  _ \  | ____| |     |_   _|_ _| ____/ ___| / _ \ 
+\___ \| |   | |_) || || |_) | |  _| | |       | |  | ||  _| \___ \| | | |
+ ___) | |___|  _ < | ||  __/  | |___| |___    | |  | || |___ ___) | |_| |
+|____/ \____|_| \_\___|_|     |_____|_____|   |_| |___|_____|____/ \___/ 
+                                                                         
+     _ _   _  ___  _   _ 
+    | | | | |/ _ \| \ | |
+ _  | | |_| | | | |  \| |
+| |_| |  _  | |_| | |\  |
+ \___/|_| |_|\___/|_| \_|
+
+\e[0m"
+    echo -e "\e[31m   Bienvenido al Script de Automatización PAPI JHON\e[0m"
+    echo -e "\e[32m   Presiona Ctrl+C para salir y conservar el entorno virtual\e[0m"
+    echo ""
+}
+
+# --- FUNCIONES DE UTILIDAD ---
+pregunta_segura() {
+    local pregunta="$1"
+    local variable="$2"
+    local opciones="$3"
+    while true; do
+        echo -ne "\e[33m[?] $pregunta \e[0m"
+        trap - SIGINT
+        read $variable
+        trap cleanup SIGINT SIGTERM
+        if [ -z "$opciones" ] || [[ "$opciones" == *"${!variable}"* ]]; then
+            break
+        else
+            echo -e "\e[31m[!] Opción inválida. Usa: $opciones\e[0m"
+        fi
+    done
+}
+
+configurar_permisos_pip() {
+    echo -e "\e[34m[*] Configurando permisos de pip...\e[0m"
+    mkdir -p ~/.cache/pip
+    sudo chown -R $USER:$USER ~/.cache/pip 2>/dev/null
+    chmod 755 ~/.cache/pip 2>/dev/null
+    echo -e "\e[32m[+] Permisos configurados correctamente.\e[0m"
+}
+
+# --- CREAR Y ACTIVAR ENTORNO ---
+crear_y_activar_entorno() {
+    if [ ! -d "venv" ]; then
+        echo -e "\e[34m[+] Creando entorno virtual...\e[0m"
+        python3 -m venv venv
+        chmod -R 755 venv/
+        echo -e "\e[32m[+] Entorno virtual creado correctamente.\e[0m"
+    fi
+
+    source venv/bin/activate
+    echo -e "\e[32m[+] Entorno virtual activado correctamente.\e[0m"
+    echo -e "\e[34m[*] Python actual: $(which python)\e[0m"
+}
+
+# --- INSTALAR REQUERIMIENTOS Y DEPENDENCIAS ---
+instalar_dependencias() {
+    echo -e "\e[34m[*] Actualizando pip y setuptools...\e[0m"
+    python -m ensurepip --upgrade >/dev/null 2>&1
+    pip install --upgrade pip setuptools wheel requests --break-system-packages >/dev/null 2>&1
+    echo -e "\e[32m[+] pip actualizado correctamente.\e[0m"
+
+    if [ -f "requirements.txt" ]; then
+        echo -e "\e[34m[*] Instalando dependencias desde requirements.txt...\e[0m"
+        pip install -r requirements.txt --cache-dir ~/.cache/pip --break-system-packages >/dev/null 2>&1
+        echo -e "\e[32m[+] Todos los módulos de requirements.txt fueron instalados correctamente.\e[0m"
+    fi
+}
+
+# --- DETECTAR MÓDULOS PYTHON ---
+detectar_modulos_python() {
+    echo -e "\e[34m[*] Analizando dependencias Python...\e[0m"
+    archivos_py=$(ls *.py 2>/dev/null)
+    modulos=()
+
+    for archivo in $archivos_py; do
+        nuevos=$(grep -Eo '^import [a-zA-Z0-9_]+' "$archivo" | awk '{print $2}')
+        froms=$(grep -Eo '^from [a-zA-Z0-9_]+' "$archivo" | awk '{print $2}')
+        modulos+=($nuevos $froms)
+    done
+
+    modulos_unicos=($(echo "${modulos[@]}" | tr ' ' '\n' | sort -u))
+    faltantes=()
+    for m in "${modulos_unicos[@]}"; do
+        python -c "import $m" 2>/dev/null || faltantes+=("$m")
+    done
+
+    if [ ${#faltantes[@]} -eq 0 ]; then
+        echo -e "\e[32m[✓] No hay módulos Python faltantes.\e[0m"
+    else
+        echo -e "\e[33m[!] Módulos Python faltantes detectados:\e[0m"
+        for f in "${faltantes[@]}"; do echo "   - $f"; done
+        echo -e "\e[34m[*] Instalando automáticamente...\e[0m"
+        pip install "${faltantes[@]}" --break-system-packages >/dev/null 2>&1
+        echo -e "\e[32m[+] Módulos faltantes instalados correctamente.\e[0m"
+    fi
+}
+
+# --- DETECTAR COMANDOS DEL SISTEMA ---
+detectar_comandos_sh() {
+    echo ""
+    echo -e "\e[34m[*] Analizando comandos del sistema en scripts .sh...\e[0m"
+    comandos_sistema=(nmap curl wget dig host hydra whois ping)
+    faltantes_sistema=()
+
+    for cmd in "${comandos_sistema[@]}"; do
+        if ! command -v "$cmd" &>/dev/null; then
+            faltantes_sistema+=("$cmd")
+        fi
+    done
+
+    if [ ${#faltantes_sistema[@]} -eq 0 ]; then
+        echo -e "\e[32m[✓] Todos los comandos del sistema están disponibles.\e[0m"
+    else
+        echo -e "\e[33m[!] Herramientas del sistema faltantes:\e[0m"
+        for f in "${faltantes_sistema[@]}"; do echo "   - $f"; done
+        echo -e "\e[34m[*] Instalando automáticamente...\e[0m"
+        sudo apt update -y >/dev/null 2>&1
+        sudo apt install -y "${faltantes_sistema[@]}" >/dev/null 2>&1
+        echo -e "\e[32m[+] Herramientas del sistema instaladas correctamente.\e[0m"
+    fi
+}
+
+# --- EJECUCIÓN PRINCIPAL ---
+mostrar_banner
+configurar_permisos_pip
+crear_y_activar_entorno
+instalar_dependencias
+detectar_modulos_python
+detectar_comandos_sh
+
+echo ""
+echo -e "\e[32m[✓] Todo listo. Puedes ejecutar tus herramientas con confianza.\e[0m"
+echo -e "\e[36m[*] Entorno virtual activo. Para desactivarlo: deactivate\e[0m"
+echo ""
+
+# --- MANTENER ENTORNO VIRTUAL ACTIVO ---
+if [ -f "venv/bin/activate" ]; then
+    echo -e "\e[32m[+] Manteniendo entorno virtual activo...\e[0m"
+    echo -e "\e[36m[*] Entorno actual: $(pwd)/venv\e[0m"
+    echo -e "\e[33m[?] Para salir usa: deactivate o exit\e[0m"
+    exec bash --rcfile <(echo "source $(pwd)/venv/bin/activate; exec bash")
+else
+    echo -e "\e[31m[!] No se encontró entorno virtual para mantener activo.\e[0m"
+fi
